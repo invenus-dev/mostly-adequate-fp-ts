@@ -1,8 +1,8 @@
-import { container } from './mostly-adequate/08-tupperware';
+import { container as container01 } from './mostly-adequate/01-what-ever-are-we-doing';
 
-const section_logger = (section_string: string) => {
-  console.log(`===== logging for section: ${section_string}`);
-  return (value: any) => console.log(section_string, value);
+const section_logger = (section_number: string, section_name: string) => {
+  console.log(`===== logging for section ${section_number}: ${section_name}`);
+  return (...value: any[]) => console.log(section_number, ...value);
 };
 
-container(section_logger('08'));
+container01(section_logger('01', 'What Ever Are We Doing?'));
