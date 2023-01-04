@@ -54,3 +54,5 @@ export const match = (what: RegExp) => (str: string) =>
   str.match(what) !== null;
 
 export const add = (x: number) => (y: number) => x + y;
+
+export const concat = (s1: string) => (s2: string) => s1 + s2;

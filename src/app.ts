@@ -11,5 +11,5 @@ import { section_logger } from './utils';
 // container04(section_logger('04', 'Currying'));
 // container05(section_logger('05', 'Composing'));
 // container06(section_logger('06', 'Example Application'));
-// container08a(section_logger('08a', 'Tupperware'));
+container08a(section_logger('08a', 'Tupperware'));
 container08b(section_logger('08b', 'Tupperware'));
