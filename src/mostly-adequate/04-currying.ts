@@ -1,6 +1,7 @@
 import { map, reduce } from 'fp-ts/ReadonlyArray';
 
 export const container = (logger: (...v: any) => void) => {
+  // Can't Live If Livin' Is without You
   // set of curried functions manually defined because of TS
   const match = (what: RegExp) => (str: string) => str.match(what) !== null;
   const replace = (what: RegExp) => (replacement: string) => (str: string) =>
@@ -30,6 +31,7 @@ export const container = (logger: (...v: any) => void) => {
   const lenghtize = our_map(toLength);
   logger(lenghtize(['hey', 'Marija']));
 
+  // More Than a Pun / Special Sauce
   const getChildren = (x: HTMLElement) => x.childNodes;
   const allTheChildren = map(getChildren);
 
@@ -40,7 +42,7 @@ export const container = (logger: (...v: any) => void) => {
   ];
   logger(allTheChildren(elements));
 
-  // exercises
+  // Exercises
   const words = split(' ');
   logger(words('this is a sentence'));
 
