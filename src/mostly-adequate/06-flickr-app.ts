@@ -3,7 +3,7 @@ import { map } from 'fp-ts/lib/ReadonlyArray';
 import $ from 'jquery';
 import { prop } from './common';
 
-export const container = () => {
+export const container = (logger: (...v: any) => void) => {
   const Impure = {
     getJSON: (callback: Function) => (url: string) => $.getJSON(url, callback),
     setHtml: (sel: string) => (html: any) => $(sel).html(html),
@@ -36,5 +36,6 @@ export const container = () => {
   const app = flow(url, Impure.getJSON(render));
 
   // initialization with search term
+  logger('Starting app in browser');
   app('bricks');
 };

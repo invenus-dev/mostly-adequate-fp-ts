@@ -1,3 +1,4 @@
+// https://cjonas.gitbook.io/mostly-adequate-fp-ts/chapter-06-example-application
 export function prop<K extends string>(
   k: K
 ): <T extends Record<K, any>>(obj: T) => T[K];
@@ -44,3 +45,12 @@ export function inspect(x: any): any {
 
   return typeof x === 'function' ? inspectFn(x) : inspectArgs(x);
 }
+
+// hand-written TS conversions from original book
+export const append = (string_to_add: string) => (original_string: string) =>
+  original_string + ' ' + string_to_add;
+
+export const match = (what: RegExp) => (str: string) =>
+  str.match(what) !== null;
+
+export const add = (x: number) => (y: number) => x + y;

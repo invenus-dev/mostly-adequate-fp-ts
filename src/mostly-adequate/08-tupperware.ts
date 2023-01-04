@@ -1,4 +1,4 @@
-import { inspect } from './common';
+import { inspect, prop, match, add, append } from './common';
 
 class Container<T> {
   constructor(private x: T) {}
@@ -31,13 +31,6 @@ class Maybe<T> {
     return this.isNothing ? 'Nothing' : `Just(${inspect(this.x)})`;
   }
 }
-
-// helper fns
-const prop = (property: string) => (object: any) => object[property];
-const append = (string_to_add: string) => (original_string: string) =>
-  original_string + ' ' + string_to_add;
-const match = (what: RegExp) => (str: string) => str.match(what) !== null;
-const add = (x: number) => (y: number) => x + y;
 
 export const container = (logger: (v: any) => void) => {
   // The Mighty Container
