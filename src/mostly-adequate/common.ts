@@ -56,3 +56,10 @@ export const match = (what: RegExp) => (str: string) =>
 export const add = (x: number) => (y: number) => x + y;
 
 export const concat = (s1: string) => (s2: string) => s1 + s2;
+
+export const head = (x: any) => x[0];
+
+export const last = (x: any[]) => x[x.length - 1];
+
+export const split = (splitter: string) => (source: string) =>
+  source.split(splitter);
