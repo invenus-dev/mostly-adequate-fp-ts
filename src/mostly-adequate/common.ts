@@ -63,3 +63,15 @@ export const last = (x: any[]) => x[x.length - 1];
 
 export const split = (splitter: string) => (source: string) =>
   source.split(splitter);
+
+// here we only allow function that maps array element (T) into string | number for comparisons (U)
+export const sortBy =
+  <T, U extends string | number>(fn: (arg: T) => U) =>
+  (xs: T[]) => {
+    return xs.sort((a: T, b: T) => {
+      if (fn(a) === fn(b)) {
+        return 0;
+      }
+      return fn(a) > fn(b) ? 1 : -1;
+    });
+  };

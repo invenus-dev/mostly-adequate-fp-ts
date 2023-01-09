@@ -1,13 +1,17 @@
 import moment, { Moment } from 'moment';
-import { add, concat, head, last, prop, split } from './common';
+import { add, concat, head, last, prop, split, sortBy } from './common';
+import jQuery from 'jquery';
+import Mustache from 'mustache';
 
 import { flow, pipe, identity } from 'fp-ts/lib/function';
 import { map, filter } from 'fp-ts/ReadonlyArray';
 import * as E from 'fp-ts/Either';
 import * as O from 'fp-ts/Option';
 import * as IO from 'fp-ts/IO';
+import * as TE from 'fp-ts/TaskEither';
+import * as T from 'fp-ts/Task';
 
-export const container = (logger: (...v: any[]) => void) => {
+export const container = async (logger: (...v: any[]) => void) => {
   const trace = (tag: string) => (x: any) => {
     logger(tag, x);
     return x;
@@ -100,4 +104,83 @@ export const container = (logger: (...v: any[]) => void) => {
   const findParam = (key: string) => pipe(url, IO.map(urlOps(key)));
   logger(findParam('searchTerm')());
   logger(findParam('unknown')());
+
+  // Asynchronous Tasks
+  const getJSON =
+    <T>(url: string) =>
+    (params: Record<string, any>) =>
+      TE.tryCatch(
+        () =>
+          new Promise<T>((resolve, reject) => {
+            jQuery
+              .getJSON(url, params, resolve)
+              .fail((e) => reject(new Error(e.statusText)));
+          }),
+        (reason) => new Error(String(reason))
+      );
+
+  await (async () => {
+    logger('video json tests');
+
+    type Video = { title: string };
+
+    const jsonResult = (fileUrl: string) =>
+      pipe(
+        { id: 10 },
+        getJSON<Video>(fileUrl),
+        TE.map(prop('title')),
+        TE.fold((e) => T.of(e.message), T.of)
+      );
+
+    // testing: Task is async code
+    const failed = await jsonResult('/fail.json')();
+    logger('failed: ', failed);
+
+    const ok = await jsonResult('/video.json')();
+    logger('ok: ', ok);
+  })();
+
+  await (async () => {
+    logger('blog post tests');
+
+    const blogTemplate = `
+    <div class="blogs">
+      {{#.}}
+        <div class="blogPost">
+          <h2 class="title">{{title}}</h2>
+          <h6 class="date">{{date}}</h6>
+          <div class="author">{{author}}</div>
+        </div>
+      {{/.}}
+    </div>
+    `;
+
+    type BlogData = {
+      title: string;
+      date: string;
+      author: string;
+    };
+
+    // blogPage :: Posts -> HTML
+    // replaced Handlebars with Mustache:
+    // Handlebars sucks when it comes to webpack/TS automated browser build :-(
+    const blogPage = (data: BlogData[]) => Mustache.render(blogTemplate, data);
+
+    // sortBy is my custom implementation
+    const renderPage = flow(sortBy<BlogData, string>(prop('date')), blogPage);
+
+    // here, you can tweak with file name to trigger error
+    const blog = flow(getJSON<BlogData[]>('/posts.json'), TE.map(renderPage));
+
+    const result = await blog({})();
+    logger(
+      pipe(
+        result,
+        E.fold(
+          (err) => jQuery('#blog-error').html(err.message),
+          (page) => jQuery('#blog-container').html(page)
+        )
+      )
+    );
+  })();
 };
