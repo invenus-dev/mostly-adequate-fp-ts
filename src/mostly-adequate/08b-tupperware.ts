@@ -1,5 +1,15 @@
 import moment, { Moment } from 'moment';
-import { add, concat, head, last, prop, split, sortBy } from './common';
+import {
+  add,
+  concat,
+  head,
+  last,
+  prop,
+  split,
+  append,
+  sortBy,
+  id,
+} from './common';
 import jQuery from 'jquery';
 import Mustache from 'mustache';
 
@@ -12,11 +22,6 @@ import * as TE from 'fp-ts/TaskEither';
 import * as T from 'fp-ts/Task';
 
 export const container = async (logger: (...v: any[]) => void) => {
-  const trace = (tag: string) => (x: any) => {
-    logger(tag, x);
-    return x;
-  };
-
   // Pure Error Handling
   // fp-ts version only
   type User = {
@@ -183,4 +188,71 @@ export const container = async (logger: (...v: any[]) => void) => {
       )
     );
   })();
+
+  // Exercises
+  // Exercise 1
+  const incrF = flow(O.map(add(1)));
+  logger(
+    pipe(
+      O.fromNullable(2),
+      incrF,
+      O.fold(() => -1, id)
+    )
+  );
+
+  // Exercise 2
+  type UserEx = {
+    id: number;
+    name: string;
+    active: boolean;
+  };
+  const user: UserEx = { id: 2, name: 'Albert', active: true };
+  const user_prohibited: UserEx = { id: 3, name: 'Caroline', active: false };
+  const user_short: UserEx = { id: 4, name: 'Li', active: true };
+
+  // initial :: User -> Maybe String
+  const initial = flow(prop('name'), O.fromNullable, O.map(head));
+  logger(
+    pipe(
+      user,
+      initial,
+      O.fold(() => 'error', id)
+    )
+  );
+
+  // Exercise 3
+  const showWelcome = flow(prop('name'), append('Welcome '));
+  const checkActive = (u: UserEx) =>
+    u.active ? E.of(u) : E.left('Your account is not active');
+
+  // eitherWelcome :: User -> Either String String
+  const eitherWelcome = flow(checkActive, E.map(showWelcome), E.fold(id, id));
+  logger(pipe(user, eitherWelcome));
+  logger(pipe(user_prohibited, eitherWelcome));
+
+  // Exercise 4
+  interface Validator {
+    (u: UserEx): E.Either<string, UserEx>;
+  }
+  const validateUser = (validate: Validator) => (u: UserEx) =>
+    pipe(u, validate);
+
+  const save = (u: UserEx) => IO.of({ ...u, saved: true });
+
+  const validateName = (u: UserEx) =>
+    u.name.length > 3 ? E.right(u) : E.left('Your name need to be > 3');
+
+  const saveAndWelcome = flow(save, IO.map(showWelcome));
+
+  const register = flow(validateUser(validateName), E.map(saveAndWelcome));
+
+  const commitRegister = (u: UserEx) =>
+    pipe(
+      u,
+      register,
+      E.fold(id, (a) => a())
+    );
+
+  logger(commitRegister(user));
+  logger(commitRegister(user_short));
 };

@@ -1,5 +1,4 @@
 import * as O from 'fp-ts/Option';
-import { map } from 'fp-ts/lib/Array';
 import { pipe, flow } from 'fp-ts/lib/function';
 import { inspect, prop, match, add, append } from './common';
 

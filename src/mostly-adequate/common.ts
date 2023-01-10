@@ -75,3 +75,5 @@ export const sortBy =
       return fn(a) > fn(b) ? 1 : -1;
     });
   };
+
+export const id = <T>(i: T): T => i;
